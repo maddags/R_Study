@@ -1,0 +1,519 @@
+# R을 이용한 통계량 구하기
+
+
+과제 및 교제에서 주로 활용하는 통계량을 위주로 작성할 것이며, 
+
+기록되지 않은 통계량에 대해서는 goolging을 통하여 스스로 알아가길 바랍니다.
+
+R에서 어떻게 코드를 짜는지에 대해서만 나와있으니 부족한 개념은 스스로 공부하길 바랍니다.
+
+
+
+
+
+
+### 1. 중심위치의 측도
+
+    평균
+
+- sum() : ()에 있는 값들의 총합을 알려주는 함수
+
+- mean() : ()에 있는 값들의 평균을 알려주는 함수
+
+- 그룹/값들의 총개수를 n이라 하면,
+  "mean() = sum() / n" 을 성립
+
+* ()안에는 변수, 값들을 넣어주면 된다.
+```{r echo = TRUE}
+group1 <- c(1:10)
+group2 <- c(5:10)
+
+sum_group1 <- sum(group1)
+sum_group1
+
+sum_group2 <- sum(group2)
+sum_group2
+
+mean_group1 <- mean(group1)
+mean(group1)
+mean_group2 <- mean(group2)
+mean(group2)
+```
+
+    중앙값
+
+- median(x,na.rm = TRUE/FALSE) : 중앙값을 호출한다.
+
+  na.rm은 결측값(NA)을 포함해서 계산하냐 안하냐의 옵션, 미작성시 디폴트값은 FALSE(결측값을 포함해서 계산)
+
+```{r echo = TRUE}
+group1 <- c(1:10)
+group2 <- c(5:10)
+group3 <- c(NA,1,2,3)
+
+median_group1 <- median(group1)
+median_group1
+
+median_group2 <- median(group2)
+median_group2
+
+median_group3 <- median(group3)
+median_group3
+
+median_group3 <- median(group3, na.rm = TRUE)
+median_group3
+```
+
+    최빈값
+
+- r에서는 최빈값을 호출해주는 함수가 따로 없다.
+  즉, 사용자 지정 함수로 만들어서 사용해야한다.
+
+```{r echo = TRUE}
+group1 <- c(1,1,1,1,2,2,3,2,4,5,6)
+group2 <- c(1,1,1,2,2,2,3,4,5)
+names(group1)
+table_group1 <- table(group1)
+table_group1
+mode_group1 <- names(which.max(table_group1))
+mode_group1
+```
+위에서 사용된 table(),names(), which.max() 함수의 기능은 다음과 같다.
+
+- table() : ()안의 데이터를 table 형태로 바꿔준다.
+ 
+  첫째줄은 데이터 안에 있는 변수
+ 
+  둘재줄은 데이터 안의 변수의 수
+
+- names() : ()안에 있는 데이터의 이름을 호출
+   ()있는 조건에 따라 호출이 달라짐
+- which.max() : 데이터의 가장 큰 값을 호출
+
+```{r echo = TRUE}
+table_group2 <- table(group2)
+table_group2
+mode_group2 <- names(which.max(table_group2))
+mode_group2
+```
+
+table_group2에서 보았듯이,
+
+which.max() 함수는 최빈값이 2개 이상 있을 시, 가장 먼저 나오는 값만을 호출하는 단점이 있다.
+
+혹은, r의 package 중 "prettyR"이라는 패키지 안의 Mode 함수를 사용해 보자.
+```{r echo = TRUE}
+
+prettyR::Mode(group1)
+prettyR::Mode(group2)
+```
+
+원하는 패키지 안의 함수를 사용하는 형태는
+
+"사용할 패키지명::사용할 패키지 안에 있는 함수()" 로 사용하면 된다.
+
+2개 이상의 최빈값을 호출하기 위해서는 "사용자 정의 함수"를 만들어서 정확하게 만들어 보자.
+```{r echo = TRUE}
+getmode <- function(x){
+  x <- table(x)
+  mod <- as.numeric(names(which(max(x) == x[])))
+  if (length(as.numeric(names(x))) == length(mod)){
+    print(NULL)
+  }
+  else{
+    mod
+  }
+}
+
+group1 <- c(1,1,1,1,2,2,3,2,4,5,6)
+group2 <- c(1,1,1,2,2,2,3,4,5)
+group3 <- c(1,1,2,2,3,3,4,4,5,5)
+
+getmode(group1)
+getmode(group2)
+getmode(group3)
+```
+
+사용자 정의 함수에 대해서는 좀 더 나중에 다뤄보도록 하자.
+
+...................................................................................................................................................................................................
+
+### 연습문제1
+  
+  1. R에는 내장데이터가 여러개 존재한다. 그중 'iris'라는 데이터를 이용해서 다음의 물음에 대한 답을 구하여라
+
+  - iris의 데이터를 집단별로 나눈뒤, 각각의 Sepal.Length, Sepal.width, Petal.Length, Petal.width의 평균, 중앙값, 최빈값을 각각 data.frame 형태로 만들어라.
+  
+    (순서대로 각각 평균,중앙값,최빈값)
+  
+```{r echo = F}
+setosa <- iris[iris$Species == "setosa",1:4]
+versicolor <- iris[iris$Species == "versicolor",1:4]
+virginica <- iris[iris$Species == "virginica",1:4]
+
+iris_mean_sepal.Length <- c(mean(setosa$Sepal.Length), mean(versicolor$Sepal.Length), mean(virginica$Sepal.Length))
+
+iris_median_sepal.Length <- c(median(setosa$Sepal.Length), median(versicolor$Sepal.Length), median(virginica$Sepal.Length))
+
+iris_mode_sepal.Length <- c(getmode(setosa$Sepal.Length), getmode(versicolor$Sepal.Length), getmode(virginica$Sepal.Length))
+
+iris_mean_sepal.width <- c(mean(setosa$Sepal.Width), mean(versicolor$Sepal.Width), mean(virginica$Sepal.Width))
+
+iris_median_sepal.width <- c(median(setosa$Sepal.Width), median(versicolor$Sepal.Width), median(virginica$Sepal.Width))
+
+iris_mode_sepal.width <- c(getmode(setosa$Sepal.Width), getmode(versicolor$Sepal.Width), getmode(virginica$Sepal.Width))
+
+iris_mean_petal.Length <- c(mean(setosa$Petal.Length), mean(versicolor$Petal.Length), mean(virginica$Petal.Length))
+
+iris_median_petal.Length <- c(median(setosa$Petal.Length), median(versicolor$Petal.Length), median(virginica$Petal.Length))
+
+iris_mode_petal.Length <- c(getmode(setosa$Petal.Length), getmode(versicolor$Petal.Length), getmode(virginica$Petal.Length))
+
+iris_mean_petal.width <- c(mean(setosa$Petal.Width), mean(versicolor$Petal.Width), mean(virginica$Petal.Width))
+
+iris_median_petal.width <- c(median(setosa$Petal.Width), median(versicolor$Petal.Width), median(virginica$Petal.Width))
+
+iris_mode_petal.width <- c(getmode(setosa$Petal.Width), getmode(versicolor$Petal.Width), getmode(virginica$Petal.Width))
+
+iris_mean <- data.frame(iris_mean_sepal.Length,iris_mean_sepal.width,iris_mean_petal.Length,iris_mean_petal.width)
+colnames(iris_mean) <- c("sepal.Length", "sepal.width","petal.Length","petal.width")
+rownames(iris_mean)<- c("setosa", "versicolor","virginica")
+iris_mean
+
+iris_median <- data.frame(iris_median_sepal.Length,iris_median_sepal.width,iris_median_petal.Length,iris_median_petal.width)
+colnames(iris_median) <- c("sepal.Length", "sepal.width","petal.Length","petal.width")
+rownames(iris_median)<- c("setosa", "versicolor","virginica")
+iris_median
+
+iris_mode_sepal.width <- c(3.4, "", 3.0, "" ,"", 3.0)
+iris_mode_petal.width <- c(0.2, "", 1.3, "", "", 1.8)
+iris_mode_petal.Length <- c(1.4, 1.5,4.5, "", "", 5.1)
+iris_mode <- data.frame(iris_mode_sepal.Length,iris_mode_sepal.width,iris_mode_petal.Length,iris_mode_petal.width)
+colnames(iris_mode) <- c("sepal.Length", "sepal.width","petal.Length","petal.width")
+rownames(iris_mode)<- c("setosa","","versicolor"," ","  ","virginica")
+iris_mode
+```
+
+
+...................................................................................................................................................................................................
+
+### 2. 퍼진 정도의 측도
+  
+    분산
+
+- var() : ()안에 있는 변수의 표본분산을 알려주는 함수, 표본분산이여서 자유도를 N-1로 계산한다.
+
+```{r echo = T}
+group1 <- c(1,2,3,4,5)
+group2 <- c(1,2,NA,3,4)
+group3 <- c(1,2,3,4)
+
+var(group1)
+var(group2)
+var(group3)
+```
+
+var(group1)은 아무문제 없이 실행이 된다.
+
+하지만 group2와 group3을 비교해보면 NA이 있고 없고 차이가 난다. 따라서 var(group2), var(group3)을 비교해봤을때, NA값의 유무에 따라 값이 달라진다.
+
+그럼 group2처럼 NA값이 있을때는 ()안에 옵션값인, na.rm = T을 입력하면 된다.
+```{r echo = T}
+var(group2, na.rm = T)
+```
+
+위처럼 입력할 시, NA값을 제거하고 분산값을 계산해준다.
+
+
+    표준편차
+
+- sd(): ()안에 데이터, 변수를 입력하면 그 값의 표준편차를 호출한다.
+
+  var()와 마찬가지로 NA값이 있을시, NA값을 호출하므로 반드시 na.rm = T 옵션을 입력하여 호출하도록 하자.
+  
+```{r echo = T}
+
+group1 <- c(1,2,3,4,5)
+
+sd(group1)
+
+sqrt(var(group1))
+```
+
+
+  표준편차는 분산을 제곱근 한 값과 같으므로 위처럼 제곱근을 알려주는 sqrt()함수 안에 var()를 집어넣어도 sd()와 같은 값이 나온다.
+
+
+    백분위수
+  
+- quantile(data = x, prob = c()) : 백분위수를 구해주는 함수이다. data에는 데이터값이나 값이 들어가 있는 변수를(x자리에 넣으면 됨) 입력한다. prob은 원하는 백분위수를 입력하면 된다. c()의 ()안에 원하는 백분위수를 넣으면 된다.
+
+  random 이라는 변수에 1000개의 난수를 입력받아서 저장해보자.
+```{r echo = T}
+set.seed(10)
+random <- sample(x = 1:50, size = 1000, replace = T)
+random
+
+quantile(x = random, prob = c(0.1,0.25,0.6,0.9))
+```
+
+  set.seed는 r에 내장되어있는 일정한 패턴으로 설정한다는 의미이다. ()안에 숫자를 넣으면 해당 값의 패턴으로 바뀐다. 
+
+  sample()함수는 입력한 데이터안에서 설정한 옵션대로 데이터를 뽑느 함수이다.
+sample()의 옵션값을 보면 x에다가는 데이터를 입력해주면 된다. size는 설정한 데이터 중에 몇개를 뽑을 것인지 설정하는 것이다. 위에서 1000으로 설정했으므로 1부터 50 사이의 수 중에서 1000개를 뽑을 것이다. 
+
+  1부터 50개중에서 1000개 뽑는거는 범위가 뽑는 개수보다 적어서 오류가 뜨겠다고 생각하겠지만, 이를 해결하기 위한 옵션은 replace이다. replace는 복원수출의 여부를 붙는 옵션이다. T로 설정하면 복원수출을 허용하는거고, F일시 복원수출을 하지 않는다. 따라서 위의 코드가 가능한 이유가 바로 replace = T로 하였기 때문이다.
+
+  quantile에 random 변수를 넣어 원하는 백분위수를 확인하면 된다.
+
+
+...................................................................................................................................................................................................
+
+### 연습문제2
+
+  iris 데이터를 이용해서 다음에 답하시오.
+
+- iris의 데이터를 집단별로 나눈뒤, 각각의 Sepal.Length, Sepal.width, Petal.Length, Petal.width의 분산, 표준편차를 각각 data.frame 형태로 만들어라.
+
+  (순서대로 분산, 표준편차이다.)
+```{r echo = F}
+setosa <- iris[iris$Species == "setosa",1:4]
+versicolor <- iris[iris$Species == "versicolor",1:4]
+virginica <- iris[iris$Species == "virginica",1:4]
+
+iris_var_sepal_Length <- c(var(setosa$Sepal.Length),var(versicolor$Sepal.Length),var(virginica$Sepal.Length))
+iris_var_sepal_Width <- c(var(setosa$Sepal.Width),var(versicolor$Sepal.Width),var(virginica$Sepal.Width))
+iris_var_petal_Length <- c(var(setosa$Petal.Length),var(versicolor$Petal.Length),var(virginica$Petal.Length))
+iris_var_petal_Width <- c(var(setosa$Petal.Width), var(versicolor$Petal.Width), var(virginica$Petal.Width))
+
+iris_sd_sepal_Length <- c(sd(setosa$Sepal.Length),sd(versicolor$Sepal.Length),sd(virginica$Sepal.Length))
+iris_sd_sepal_Width <- c(sd(setosa$Sepal.Width),sd(versicolor$Sepal.Width),sd(virginica$Sepal.Width))
+iris_sd_petal_Length <- c(sd(setosa$Petal.Length),sd(versicolor$Petal.Length),sd(virginica$Petal.Length))
+iris_sd_petal_Width <- c(sd(setosa$Petal.Width), sd(versicolor$Petal.Width), sd(virginica$Petal.Width))
+
+iris_var <- data.frame(iris_var_sepal_Length,iris_var_sepal_Width,iris_var_petal_Length,iris_var_petal_Width)
+colnames(iris_var) <- c("sepal.Length", "sepal.width","petal.Length","petal.width")
+rownames(iris_var)<- c("setosa", "versicolor","virginica")
+iris_var
+
+iris_sd <- data.frame(iris_sd_sepal_Length,iris_sd_sepal_Width,iris_sd_petal_Length,iris_sd_petal_Width)
+colnames(iris_sd) <- c("sepal.Length", "sepal.width","petal.Length","petal.width")
+rownames(iris_sd)<- c("setosa", "versicolor","virginica")
+iris_sd
+```
+
+...................................................................................................................................................................................................
+
+#### R패키지를 통한 통계량 관측하기
+
+psych패키지를 설치 후 library를 해준다.
+
+psych패키지 안에 describe함수를 이용하면 다음의 지표를 한번에 구할 수 있다.
+
+    describe()
+    
+    - 표본수
+    
+    - 평균(mean)
+    
+    - 표준편차(standard deviation)
+    
+    - 중앙값(median)
+    
+    - 절사평균(trimmed mean)
+    
+    - MAD(median absolute deviation)
+    
+    - 최솟값(minimum)
+    
+    - 최대값(maximum)
+    
+    - 범위(range)
+    
+    - 비대칭도(skew)
+    
+    - 첨도(kurtosis)
+    
+    - Standard error of the mean(se)
+
+```{r echo = T}
+library(psych)
+
+describe(iris)
+```
+
+...................................................................................................................................................................................................
+
+### 3. 분할표
+
+앞으로 R을 하여 과제를 할때, 가장 많이 사용하게 될 것이다. 반드시 숙지해야된다.
+
+    데이터 프라임(dataframe)
+
+- data.frame(x = data) : n by n(nXn)형태로 만들어 주는 함수이다.
+
+  예제는 iris 데이터를 사용한다.
+```{r echo = T}
+str(iris)
+```
+
+  첫줄을 보면 'data.frame'이라고 되어 있을 것이다. 즉, 자료의 형태가 data.frame이라는 것이다. str()함수를 이용하면 데이터 구조의 형태를 알 수 있다.이 설명은 나중에 따로 더 설명하겠다.
+  
+  data.frame을 가지고 여러 함수를 사용할 수 있는데, 여기서는 과제할 때 가장 많이 쓰일 함수 몇개만 적도록 하겠다.
+  
+  - $의 사용법 : 데이터 중에 어느 한 열의 데이터만을 호출하고 싶을 때 사용한다. 예를 들어 이름, 나이, 키, 몸무게가 들어있는 임의의 data.frame이 있다고 하자. 키의 데이터만을 호출하고 싶을때, 다음과 같이 사용하면 된다.
+```{r echo = T}
+
+name = c("A","B","C","D","E")
+age = c(20,22,25,21,20)
+height = c(164,183,158,161,177)
+weight = c(55,85,46,70,66)
+
+student = data.frame(name,age,height,weight)
+student
+
+student$height
+```
+
+  앞에 연습문제처럼 특정한 값들을 뽑아낼때 사용할 수 있고, 조건문과 같이 사용하여 원하는 값들을 호출할 수 있다. 
+  
+  data.frame의 행/열의 이름을 바꿔주는 함수는 다음과 같다.
+  
+  - colnames(x = data) <- c("", "", ...)
+  - rownames(x = data) <- c("", "", ...)
+  
+  colnames는 열의 이름을, rownames는 행의 이름을 바꿔준다. 
+  
+  주의해야될 점은 뒤에 c()에는 행/열의 이름을 넣어주어야 하는데 문자열을 경우에는 ""을 사용해야 된다. 
+  
+  또한 행과 열의 수에 맞춰서 이름을 지정해줘야 한다. 열의 개수가 5개인데 지정한 이름은 4개일시 오류가 발생한다.
+  
+    
+```{r echo = T}
+
+x1 = c("A","B","AB","B","O")
+x2 = c(20,22,25,21,20)
+x3 = c(164,183,158,161,177)
+x4 = c(55,85,46,70,66)
+
+student <- data.frame(x1,x2,x3,x4)
+student
+```
+
+위의 data.frame을 보면 행과 열의 이름을 보고서 어떤 데이터인지 구별을 못한다. 이때 행/열의 이름을 바꿔주면 된다.
+
+```{r echo = T}
+colnames(student) <- c("blood","age","height","weight")
+rownames(student) <- c("A","B","C","D","E")
+student
+```
+두 데이터프레임의 차이를 보면 어떤 것이 더 알아보기 쉬운지 알 수 있다. 
+
+  데이터프레임의 일부만을 호출하는 방법을 알아보자.
+  
+  - []의 사용법 : data.frame의 데이터 중 일부만을 호출하는 방법을 쓸때 사용한다.
+  
+  []은 좌표입력 하듯이 입력하면 된다. [x,y]의 형태로 x행,y열을 입력하면 그곳에 해당하는 데이터를 호출한다.
+  
+  x,y의 형태로는 여러가지가 있는데 num:num의 형태일시, 첫번째 num ~ 두번째 num까지 호출한다.
+  
+```{r echo = T}
+c(1:10)
+```
+
+ x.y의 형태중, -num을 입력할시, num에 해당하는 행/열을 제외하고 나머지를 전부 호출한다.
+ ":"을 사용할 경우, 그 행/열들을 제외하고 나머지 전부를 호출한다.
+ 
+```{r echo = T}
+student[-1,-1]
+student[-2:-3,-1]
+student[-3:-5,-2:-3]
+```
+
+ x,y의 형태중, 빈칸으로 입력할시, 전부 호출한다. 행/열중 어느 것을 제외하고 전부 호출할때, 사용한다.
+
+```{r echo = T}
+student[-1,]
+student[,-1]
+student[,2]
+student[2,]
+```
+
+ []안에는 조건식을 사용할 수 있는데, 조건식에 대해서는 나중에 연산자 및 조건문 내용을 참조하자.
+
+...................................................................................................................................................................................................
+
+### 4. 산점도
+
+    plot()
+  
+
+  - plot() : 데이터의 유형에 최적의 그래프를 그려주는 함수이다.
+    ()옵션에 따라서 그래프 설정을 설정할 수 있다. 
+    
+    plot(Y ~ X, main="", cex = , pch = , col = "" )
+    ()안에 Y~X는 필수옵션이다. 반드시 설정을 해줘야 그래프가 표현이 된다.
+    
+    Y ~ X : Y: Y에 넣을 데이터, X : X에 넣을 데이터 ~ : 일종의 표현식(필수옵션으로 반드시 지정해줘야한다.)
+    
+    main = "" : ""안에 그래프의 제목을 입력
+    
+    cex = 표현될 점의 크기를 지정
+    
+    pch = 표현될 점의 종류를 지정(기본값은 1로 원이다.)
+    
+    col "" = 원의 색을 지정(색을 영어로 지정을 해줘야한다.)
+  
+```{r echo =T}
+set.seed(10)
+x <- sample(1:10, 100, replace = T)
+y <- sample(100:200, 100, replace =T)
+
+xy_plot <- plot(y ~ x, main ="산점도", cex = 1, pch = 1, col = "black")
+
+xy_plot 
+```
+
+x,y에 각각의 범위에 해당하는 난수 100개씩 만들어서 저장하였다.
+plot() 이란 함수 말고, ggplot2라는 패키지를 이용해서 더 좋은 그래프를 만들수 있는데 이건 따로 정리를 하겠다. 그 외의 옵션은 구글링을 통해서 알아보도록 하자.
+ 
+ 
+    상관분석
+  
+  - cov(x,y) : x,y에 넣은 데이터간의 공분산을 알려주는 함수.
+  
+```{r echo = T}
+cov(x,y)
+```
+  x,y와는 위의 예시에서 가져온 것이다.
+  
+  - cor(x,y, use = "", method = "") : x,y에 넣은 데이터간의 상관계수를 알려주는다.
+    use에는 결측값 처리를 어떻게 할 것인지에 대한 옵션을 넣어주면 된다.
+    
+    use에 들어갈 것
+    
+    - everythning = 모든 값을 넣어서 처리
+    
+    - complete.obs = 결측값을 모두 제거된 상태에서 상관계수를 계산
+    
+    method는 상관계수를 계산하는 방법에 대한 값을 넣어준다.
+    
+    method에 들어갈것 : kendall, spearman, pearson
+    
+```{r echo = T}
+
+cor(x,y, use = "everything", method = "pearson")
+```
+
+  x,y는 연속형 자료에 해당함으로 pearson 방법으로 상관계수를 계산하였다.
+  
+  - cor.test(x,y) : 상관계수의 가설 검정을 해주는 함수이다.
+  
+  가설 검정에 대한 개념은 전공책을 참고하도록 하자.
+  
+```{r echo = T}
+
+cor.test(x,y)
+```
+
+  p-value에 대한 값에 따라 귀무가설을 기각 혹은 받아들일지 결정한다.

@@ -1,0 +1,27 @@
+{
+    "id": "C77A3921",
+    "path": "~/4-1학기수업/스포츠빅데이터분석/과제/data_crawling.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "2310139178",
+    "contents": "",
+    "dirty": false,
+    "created": 1634211760388.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "262,0",
+        "scrollLine": "247"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1634295233,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1634295233814,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -1,0 +1,15 @@
+#### 회귀모형이 만족해야하는 7개의 Classical Assumption
+(http://blog.naver.com/PostView.nhn?blogId=yonxman&logNo=220950614789 참조)
+    
+    조건
+    1. 종속변수와 독립변수 간 선형관계가 존재할 것
+    2. 독립변수와 오차항(error term) 간 상관관계가 없을 것
+    3. 오차항은 기대값 0 -> 랜덤 워크(Random Work) 관련 내용
+    4. 오차항의 분산은 모든 관찰치에서 일정할 것 - > 이분산성(Heteroskedasticity)
+    5. 오차항간 상관관계가 없을 것 -> 계열 상관성(Serial Correlation)
+    6. 독립변수간 상관관계 없을 것(다중회귀모형이 해당) -> 다중공산성(Multicollinearity)
+    7. 오차항은 정규분포일 것 <-- 모집단이 정규분포이거나, 표본이 크면 해결됨
+    
+    
+
+

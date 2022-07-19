@@ -1,0 +1,23 @@
+### pie 그래프
+
+    pie()함수
+    
+    - x : 데이터
+    
+    - labels = names(x) : 각 파이의 이름
+    
+    - angle : 파이의 각도
+    
+    - density : 파이를 구성하는 수
+    
+    - col : 파이 색깔
+    
+    - radius : 파이의 크기
+    
+    - clockwise = T/F : 각 데이터들을 서순하는 방향을 반시계로 할것인지에 대한 여부
+    
+    - init.angle : 파이의 시작각도
+    
+    - border : 파이의 테두리 색상
+    
+```{r echo = T}

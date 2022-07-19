@@ -1,0 +1,289 @@
+---
+---
+
+## 텍스트마이닝
+
+#### 1. 패키지 설치
+
+들어가기에 앞써 텍스트마이닝을 하기 위한 몇가지 패키지를 설치해야 된다.
+
+wordcloud : 말 그래도 워드클라우드를 하기 위한 패키지
+
+RColorBrewer : 여러 색을 제공해주는 팔레트 같은 패지지
+
+KoNLP : 한국어 텍스트마이닝을 위한 패키지
+
+library까지 해서 미리미리 준비해놓자.
+
+```{r eval = T}
+#install.packages("wordcloud")
+#install.packages("RColorBrewer")
+#install.packages("KoNLP")
+library(wordcloud)
+library(RColorBrewer)
+library(KoNLP)
+```
+
+...................................................................................................................................................................................................
+
+#### 2. 데이터 준비
+
+list.files() : 현재 작업경로에 있는 파일목록을 호출한다.
+
+readLines("파일이름") : 파일을 행단위로 읽어 벡터로 저장해주는 함수
+
+```{r echo = T}
+list.files()
+data <- readLines("C:/Users/madda/Documents/동아리/R문서(개인)/텍스트마이닝/comment.txt", encoding = "UTF-8")
+data_all <- data
+data <- head(data, 10)
+```
+
+txt파일의 데이터가 크므로 head를 이용해서 위에 10개만을 가지고 할 것이다.
+
+wordcloud의 경우 간단하게 **wordcloud(데이터,빈도수)**로 사용할수 있다.
+
+데이터의 빈도수가 클수록 글자의 크기는 커진다.
+
+여러개의 데이터를 한꺼번에 다룰 수 있다. 예제를 한번 살펴보자.
+
+```{r echo = T}
+word <- c("강아지","고양이","송아지","병아리","올챙이")
+fre <- c(30,20,10,7,4)
+wordcloud(word,fre)
+```
+
+wordcloud의 옵션을 적용을 안해서 단순하게 워드클라우드가 실행이 되었다. 아마 옵션이 없어 실행할 때마다 형태가 바뀔 것이다.
+
+    wordcloud 옵션
+    
+    - scale : 가장 빈도가 많은 단어와 가장 빈도가 적은 단어 폰트사이의 크기차이 조정, scale = c(max,min)
+    
+    - minfreq : 출력될 단어들의 최소빈도
+    
+    - maxwords : 출력된 단어들의 최대빈도
+    
+    - random.order = T/F (T면 랜덤, F면 빈도수가 가장 많은 단어를 중앙, 적은 순으로 외곽)
+    
+    - random.color = T/F (T면 랜덤, F면 빈도순으로 색 배열)
+    
+    - rot.per(90도 회전된 각도로 출력되는 단어비율)
+    
+    - colors = c() (가장 작은빈도부터 큰빈도순으로 단어색 지정)
+    
+    - family = "" (글씨체 지정)
+    
+useSejongDic() : 사전을 추가한다. (추출시, 이 함수에 등록되어 있는 단어를 기준으로 추출하게 된다.)
+
+...................................................................................................................................................................................................
+
+#### 3. 명사 추출
+
+sapply() : 리스트 대신 행렬/벡터 등의 데이터 타입으로 결과를 반환하는 함수. **sapply(data, function)**이 기본적인 형태이다. data는 적용할 데이터를 function은 데이터에 적용할 함수를 적어주면 된다.
+
+명사를 추출하기 위해 sapply()의 function에다가 extractNoun을 넣어준다.
+
+extractNoun : 명사를 추출하는 옵션
+
+USE.NAMES : T/F (컬럼명을 사용하는지에 대한 여부, T/F = 사용/미사용)
+
+
+```{r echo = T}
+data_nounlist <- sapply(data,extractNoun,USE.NAMES = F)
+data_nounlist <- unlist(data_nounlist)
+data_nounlist <- table(data_nounlist)
+data_nounlist
+```
+
+위에 결과값을 보면 보기 쉽게 하기 위해서 table 형태로 바꾸었다.
+
+명사 추출할 때, 제대로 정의되지 않아서 위와 같이 나왔으므로 이상하게 나온 것이 당연하다.
+
+...................................................................................................................................................................................................
+
+#### 4. 단어 등록
+
+```{r echo = T}
+data_noun100 <- sapply(data_all,extractNoun,USE.NAMES = F)
+data_noun100 <- unlist(data_noun100)
+data_noun100 <- table(data_noun100)
+```
+
+wordcloud(names(data_noun100),data_noun100)을 실행시켜보면, 단어들을 제대로 처리하지 않아서 단어가 이상하게 나오거나, 인식을 할 수 없게 나온다.
+
+요즘 생긴 신조어라든지, 약어 등을 추가로 지정해줘야 정확하게 분석할 수 있다.
+
+KoLNP의 mergeUserDic()을 이용햇 수동으로 단어들을 등록할 수 있다.
+
+```{r echo = T}
+mergeUserDic(data.frame(c("꼴초","ㅅㅂ"),"ncn"))
+```
+
+mergeUserDIc() : 사전에 단어를 추가하는 함수. 
+
+data.frame(c(), "")에서 c()부분은 추가할 단어를 입력, ""부분은 단어들의 품사 종류를 입력하면 된다. 위에서 ncn는 명사(비서술성 명사)를 뜻한다.
+
+http://kkma.snu.ac.kr/documents/index.jsp?doc=postag 들어가 정확한 형태소 품사에 대한 코드를 찾아보면 도움이 된다.
+
+위에 사전을 추가한 뒤, 처음부터 다시 코드를 실행시키면 새로운 단어들이 추가될 것이다.
+
+...................................................................................................................................................................................................
+
+#### 5. 전처리-2글자이상 단어 뽑기
+
+Filter() : 스스로 만든 함수(사용자 지정 함수)를 적용시키는 함수이다.
+
+nchar(x) : 파라미터(단어) x의 길이를 구해주는 함수.
+
+```{r echo = T}
+data_noun_filter <- Filter(function(x){
+    nchar(x) >= 2}, data_noun100
+    )
+data_noun_filter
+```
+
+위의 코드를 해석해보자면, data_noun100에 들어있는 단어들 중에 단어 글자수가 2이상인 수를 뽑아서 data_noun100에 저장하는 의미이다.
+
+"," 뒤의 data_noun100는 저장할 위치를 의미한다.
+
+Filter(function{}, " 저장할 위치")로 해석하면 될 것이다.
+
+글자 2개 이상으로 지정한 이유를 "등", "들"와 같은 수많은 의존명사들을 제거할 수 있기 때문이다.
+
+...................................................................................................................................................................................................
+
+#### 6. 전처리 - 필요없는 글자 제거하기
+
+gsub() : 바꿀 단어를 찾아서 바꿔주는 함수이다.
+
+gsub(찾을단어, 바꿀 단어, 찾을 곳)으로 입력을 하는데 바꿀 단어 자리에 ""을 쓰면 단어가 없는 것처럼 할 수 있다.
+
+ex) gsub("ㅋㅋ","",data_noun100)으로 하면 "ㅋㅋ"라는 단어가 공백으로 처리된다.
+
+여기서 효율적으로 처리하기 위해서 정규표현식이 필요하다.
+
+밑의 주소로 찾아가 참조해보자.
+
+위키 : https://ko.wikipedia.org/wiki/%EC%A0%95%EA%B7%9C_%ED%91%9C%ED%98%84%EC%8B%9D
+
+gsub을 제대로 사용하기 위해서는 표현식을 정확히 알고 써야한다.
+
+gsub에서 "찾을 단어"에 들어갈 문법중 "()", "[]"은 다음과 같다.
+
+([텍스트]) : 대괄호(=[]) 안에 묶인 글자 중 하나라도 매칭되는 것을 찾아준다.
+
+((텍스트)) : 소괄소(=()) 안에 묶인 글자 모두가 매칭되는 것을 찾아준다.
+
+gsub에서 "찾을 단어"에 들어갈 문법 중 ".", "+"의 의미는 다음과 같다.
+
+(글자).+ : "."은 모든 글자를 의미하며 한글, 영어, 숫자 모두 해당한다. "글자"뒤에 모든 글자를 의한다. "+"는 '하나 이상'을 의미한다.
+
+즉, (글자).+는 "글자" 뒤에 한글자 이상으로 된 것들의 찾아준다.
+
+^글자, 글자\$ : "^"는 맨 앞을 뜻하고, "\$"는 맨 뒤를 뜻한다. 따라서 맨 앞의 글자만을 바꾸거나 맨 뒤의 글자만을 고칠때는 "^글자", "글자\$"로 입력하면 된다.
+```{r echo = T}
+data_nounlist <- sapply(data,extractNoun,USE.NAMES = F)
+data_nounlist <- unlist(data_nounlist)
+data_nounlist
+data_nounlist <- gsub("(사재기).+","사재기",data_nounlist)
+data_nounlist <- gsub("(용기).+","용기",data_nounlist)
+data_nounlist <- gsub("(등골).+","등골",data_nounlist)
+data_nounlist <- gsub("(담배값).+","담배값",data_nounlist)
+data_nounlist <- gsub("(담배).+","담배",data_nounlist)
+data_nounlist <- gsub("(부담).+","부담",data_nounlist)
+data_nounlist <- gsub("원","천원",data_nounlist)
+data_nounlist <- gsub("천","천원",data_nounlist)
+data_nounlist <- gsub("(천원).+","천원",data_nounlist)
+data_nounlist <- gsub("(국회).+","국회의원",data_nounlist)
+data_nounlist <- gsub("(미국).+","미국",data_nounlist)
+data_nounlist <- gsub("술먹고","술",data_nounlist)
+data_only_noun <- data_nounlist
+data_only_noun
+```
+
+위의 코드를 전부 실행시켜 호출하면 명사와 조사/동사로 이루어진 단어들을 모두 단어의 형태로 바꾸었다. 
+
+일일이 수작업을 하였기 때문에 비효율적인 작업에 해당된다. 
+
+이와 같은 작업을 줄이기 위해서 단어를 선택하는 기준을 정확하게 하여야 할 것이다.
+
+단어들 중에서 이제 필요없는 단어들에 해당되는 특수문자를 지워보도록 하자.
+
+    특수문자 삭제하기
+    
+    1. 자음 삭제(ㅋㅋ,ㄴㄴ 등등)
+    
+    gsub('[ㄱ-ㅎ]',"", 저정할 곳)
+    
+    2. 모음 삭제(ㅜㅜ,ㅗㅗ 등)
+    
+    gsub('(ㅜ|ㅗ)',"", 저장할 곳)
+    
+    3. 숫자 삭제
+    
+    gsub("\\d+","", 저장할 곳)
+    
+    4. 특수문자 삭제($%^& 등등)
+    
+    gsub("\\$","", 저장할 곳)
+
+위에 코드들 중 \\ 라는 것이 있을 것이다.(3,4번 참조)
+
+\\를 앞에 2개 붙여쓰면 사용하면 텍스트를 그대로 인식하게 된다.
+
+```{r echo = T}
+data_only_noun <- gsub("[ㄱ-ㅎ]","",data_only_noun)
+data_only_noun <- gsub("\\d+","",data_only_noun)
+data_only_noun <- gsub("^\\^+","",data_only_noun)
+data_only_noun <- gsub("[ㅡ|ㅠ]","",data_only_noun)
+data_only_noun <- gsub("\\.","",data_only_noun)
+data_only_noun
+```
+
+위에 특수문자의 경우 한꺼번에 저장하지 말고, 한개씩 하는 것이 더 좋다. 
+
+특수문자 개별의 기능을 이용하는 것도 있기 때문이다(#의 주석처리기능).
+
+남은 단어들을 보고 사전에 명사로 등록이 안된 것들을 제거해준다.
+
+```{r echo = T}
+data_only_noun <- gsub("줄여봐","",data_only_noun)
+data_only_noun <- gsub("된거","",data_only_noun)
+data_only_noun <- gsub("올리겟지","",data_only_noun)
+data_only_noun <- gsub("안가","",data_only_noun)
+data_non_na <- data_only_noun
+```
+
+어느정도 처리된 것이 눈에 보인다.
+
+그럼 ""처리를 해줬던 것들을 없애야 한다.
+
+```{r echo = T}
+data_non_na <- na.omit(data_non_na)
+data_non_na <- Filter(function(x){x != ""},data_non_na)
+data_non_na
+data_wordcloud <- data_non_na
+```
+
+위에 사용햇떤 Filter함수를 사옹해서 ""를 없애주고 나면 단어들만 나올 것이다.
+
+이제 wordcloud를 이용해서 텍스트마이닝을 해보자.
+
+```{r echo = T}
+data_wordcloud <- table(data_wordcloud)
+data_wordcloud
+wordcloud(names(data_wordcloud),data_wordcloud)
+```
+
+결과과 단순하게 나왔다. 일단 워드클라우드를 하기 위해 쓴 데이터가 적어서 결과값이 3개의 단어로 밖에 구성이 안되어있다. 
+
+"담배", "불", "천원"이 빈도수가 제일 많게 나와서 결과가 위와 같이 나온 것이다.
+
+더 많은 데이터를 가지고 텍스트마이닝을 하면 더 정확한 분석이 될 것이다. 
+
+...................................................................................................................................................................................................
+
+    연습문제
+    
+    위의 data_all를 가지고 텍스트마이닝을 해볼것. 
+    

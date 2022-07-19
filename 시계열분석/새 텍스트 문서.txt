@@ -1,0 +1,5 @@
+https://machinelearningmastery.com/gentle-introduction-autocorrelation-partial-autocorrelation/
+
+
+시계열 공부
+https://otexts.com/fppkr/arima-r.html

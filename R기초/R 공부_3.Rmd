@@ -1,0 +1,257 @@
+# < R >
+
+### data.frame()
+
+R에서 가장 많이 쓰이는 함수 중 하나가 바로 data.frame()이다.
+
+주로 csv파일, xlsx파일 등을 불러읽으면 데이터프레임 형식으로 읽게 된다.
+
+csv파일, xlsx파일의 경우, 바로 데이터프레임으로 호출할 수 있으므로 따로 읽는 함수와 그에 따른 옵션을 익히면 된다.
+
+이에 앞써 데이터프레임 직접 만들어 보자.
+
+data.frame(x) : x에다 데이터가 저장된 변수나 데이터를 직접 입력하면 데이터프레임으로 호출하는 함수
+
+```{r echo = T}
+dice <- c(1,2,3,4,5,6)
+dice <- data.frame(dice)
+dice
+```
+
+행과 열로 변환한 것을 알 수 있을 것이다. 
+
+이제 dice에다가 이름을 저장해서 입력해 보자.
+
+```{r echo = T}
+dice <- c(1,2,3,4,5,6)
+names(dice) <- c("one","two","three","four","five","six")
+dice <- data.frame(dice)
+dice
+```
+
+처음에 해줬던 것과 비교하였을때 1열에 이름이 저장한 것을 알 수 있다.
+
+위처럼 names() 함수를 이용해서 저장할 수 있고, data.frame() 함수의 옵션을 이용해서 지정할 수 있다.
+
+```{r echo =T}
+dice <- c(1,2,3,4,5,6)
+dice <- data.frame(dice, row.names = c("1눈","2눈","3눈","4눈","5눈","6눈"))
+dice
+```
+
+위에 dice는 1열로 이루어진 데이터프레임 밖에 되질 않는다. 
+
+열의 데이터를 저장할 때는 직접 일일이 지정해서 넣어줄 수 있다.
+
+```{r echo = T}
+dice_2times <- data.frame(one= c(1,2,3,4,5,6), two = c(2,3,4,1,2,3))
+```
+
+위처럼 1번째 열을 지정해서 값을 넣고, 2번째 열을 지정해서 값을 넣으면 위처럼 결과 값이 나온다.
+
+추가하는 방법에는 행으로 추가하는 방법, 열로 추가하는 방법이 있다.
+
+- rbind(x,y) : r은 row의 약자로 행에다가 데이터를 추가하는 방법
+
+- cbind(x,y) : c은 column의 약자로 열에다가 데이터를 추가하는 방법
+
+여기서 주의해야 할 점은 x, y가 데이터프레임 형식이여야 한다.
+
+```{r echo = T}
+bloodtype <- c("A","B","O","AB","B","A","B","AB","A","A")
+gender <- c("M","M","F","F","F","M","M","M","M","F")
+height <- c(178,185,169,160,170,160,156,163,185,149)
+weight <- c(79,89,56,50,74,84,57,49,87,78)
+
+data.frame(bloodtype, stringsAsFactors = F)
+data.frame(gender, stringsAsFactors = F)
+data.frame(height, stringsAsFactors = F)
+data.frame(weight, stringsAsFactors = F)
+
+imf <- cbind(bloodtype,gender,height,weight)
+imf
+
+rownames(imf) <- c("NO1","NO2","NO3","NO4","NO5","NO6","NO7","NO8","NO9","NO10")
+imf
+
+mode(imf)
+```
+
+imf 변수에다가 임의적으로 10명의 정보를 입력해 보았다. 
+
+함수 rownames(x)는 data.frame()의 옵션으로도 쓰이지만, 단일 함수로도 존재한다. 
+
+rownames(X)만을 실행시, 행의 이름을 호출하지만, rownames(x) <- c(""...)을 할시 행의 이름이 바뀐다.
+
+rownames 말고도 colnames도 동일하게 적용된다.
+
+mode()을 해서 보면 데이터유형이 chr로 바뀌었다. 데이터프레임으로 바꿔줄때는 다음과 같이 한다.
+
+as.data.frame(x) : x를 데이터프레임으로 바꿔준다.
+
+```{r echo = T}
+imf <- as.data.frame(imf, stringAsFactors = F)
+mode(imf)
+imf
+```
+
+as.data.frame을 한 것을 다시 원하는 데이터에 넣어주어야만 그 변수가 바뀐다는 것을 잊지 말자.
+
+(원본 데이터를 유지할시, 변수명을 바꿔서 저장하는 것이 제일 효율적)
+
+stringAsFactors는 저장하는 값들의 데이터유형을 Factor로 저장할지 말지 선택하는 옵션이다(디폴트값은 T). 
+
+dataframe을 만드는 방법을 알았으면 반대로 dataframe에서 특정 데이터를 뽑는 방법을 알아보자.
+
+앞써 배웠던 []과 지금 알려줄 $을 사용하여 특정 데이터를 호출할 수 있다.
+
+$ : 데이터프레임의 특정 열을 지정해줄 때 사용한다.
+
+"변수명$열이름"으로 사용한다.
+
+데이터프레임에서의 [] 사용법은 다음과 같다.
+
+변수[x,y] : x는 행, y는 열을 의미하는 것으로 지정한 행과 열을 호출해 준다.
+
+x,y를 공란으로 입력할 시, 공란인 부분의 데이터를 전부 호출해준다.
+
+- 변수[,1] : 모든 행과 1열의 데이터 호출
+
+- 변수[-2,1] : 2행을 제외한 모든 행과 모든 열의 정보를 호출
+
+ex) imf에서 혈액형 "AB"인 사람 이름을 호출해보자.
+```{r echo = T}
+imf$bloodtype == "AB"
+imf[imf$bloodtype == "AB",]
+rownames(imf[imf$bloodtype == "AB",])
+```
+
+1번째 코드의 경우, "AB와 같은가?"라는 의미로 논리형 질문이다. 그래서 데이터 개수에 맞게 T/F로 값이 나온것
+
+2번째 코드의 경우, 행의 데이터 중 "AB와 같은가?" 중 T의 값과 모든 열의 데이터를 호출하라 라는 의미
+
+3번째 코드의 경우,2번째 코드의 결과값에서 결과값의 이름을 호출하는 구문이다.
+
+아마 제일 많이 활용되는 부분은 데이터프레임에서 원하는 자료를 호출하는 것이다.
+
+[]안에 원하는 자료를 호출할 수 있게 알맞은 조건문을 작성하는 것이 제일 중요할 것이고, 반대로 값을 수정할 때도 []의 값을 뽑아 대체할 수 있으므로 활용법을 잘 익혀야 된다.
+
+### Factor(요인)
+
+factor(요인)은 목록별로 저정하는 정보로써, 데이터 유형 중 하나에 속한다.
+
+예로 들어, 위에서 성별을 보면 남/여로 2개의 범주로 나누어지는데 이때 factor로 M, F가 지정된다. 
+이때, factor에서 각기 다른 값을 수준(level)이라고 한다. 
+
+factor로써 값을 지정하거나 계산을 하려고 할시, 오류가 뜨게 된다. 
+
+따라서 factor를 다른 유형으로 바꾼 뒤에 계산을 해야지만 계산이 가능하다,
+
+만약에 수준(level)외의 완전이 새로운 값이 추가될시, 추가되는 신규값은 NA로 저장된다. 
+
+즉, 변수에는 저장이 되지만 값으로써는 저장되지 못하게 된다는 것이다. 
+
+이때, 값에 정확한 값을 저장하기 위해 요인수준(level)에 저장하려는 값을 추가하면 된다.
+
+아래의 코드는 일부러 오류가 뜨게 설정한 것이다.
+
+```{r echo =T}
+rank <- c("S","A","B","C")
+score <- c(4.5,4.0,3.5,3.0)
+
+record <- cbind(rank,score)
+record <- as.data.frame(record)
+
+new_data <- c("D",2.5)
+record <- rbind(record,new_data)
+record
+```
+
+위에서도 말했듯이 요인의 수준(factor level)에 D,2.5라는 값이 처음부터 포함이 되어있지 않았기 때문에 데이터프레임에 입력은 되었지만 값은 NA값으로 입력이 되었다.
+
+그럼 요인의 수준(factor level)에 추가해보도록 하자.
+
+```{r echo=T}
+levels(record$rank)
+levels(record$score)
+
+levels(record$rank) <- c(levels(record$rank),"D")
+levels(record$score) <- c(levels(record$score),2.5)
+
+levels(record$rank)
+levels(record$score)
+
+record <- record[-5,]
+
+record <- rbind(record,new_data)
+record <- as.data.frame(record, stringAsFactor = F)
+record
+```
+
+record[-5,]을 해준 이유는, 위에서 한번 입력해서 NA값이 입력되어서 그 값을 지우고, 다시 입력하기 위해서이다.
+
+데이터 유형을 factor로 지정하면 분석에 활용을 할 수 없으므로, stringAsFactro를 이용해서 데이터 유형을 chr로 바꾸도록 하자.
+
+데이터 유형이 제대로 바뀌었는지 확인하기 위해서 str()함수를 사용한다.
+
+str(x) : 데이터 x의 구조를 확인하는 함수
+
+```{r echo = T}
+str(imf)
+```
+
+결과를 보고 데이터 유형이 바꾸었는지 확인하자.
+
+```{r echo = T}
+imf$height <- as.character(imf$height)
+imf$weight <- as.character(imf$weight)
+
+imf$height <- as.numeric(imf$height)
+imf$weight <- as.numeric(imf$weight)
+imf$bloodtype <- as.character(imf$bloodtype)
+imf$gender <- as.character(imf$gender)
+
+str(imf)
+```
+
+...................................................................................................................................................................................................
+
+#### 연습문제 4
+
+1. 위에 작성한 imf 변수에 (이름 = No.11, 혈액형 = B, 성별 = F, 키 = 155, 몸무게 = 55)을 추가해라. 
+
+(단, 추가 후 imf는 데이터프레임이여야 한다.)
+
+```{r echo = F}
+add_person <- c("B","F",155,55)
+
+imf <- rbind(imf,add_person)
+rownames(imf) <- c("NO1","NO2","NO3","NO4","NO5","NO6","NO7","NO8","NO9","NO10","NO11")
+imf <- as.data.frame(imf, stringAsFactor = F)
+imf
+```
+
+2. 문제1에서 만든 imf를 이용해서 다음의 물음에 답하여라
+
+- 성별에 따른 평균 키를 호출하여라(순서 : 남/여)
+```{r echo = F}
+imf$height <- as.numeric(imf$height)
+imf$weight <- as.numeric(imf$weight)
+
+male_mean_height <- mean(imf$height[imf$gender == "M"])
+female_mean_height <- mean(imf$height[imf$gender == "F"])
+
+print(c(male_mean_height,female_mean_height))
+```
+
+- 혈액형에 따른 인원 수를 호출하시오.(순서 : A,B,O,AB)
+```{r echo = F}
+case_A <- sum(imf$bloodtype == "A")
+case_B <- sum(imf$bloodtype == "B")
+case_O <- sum(imf$bloodtype == "O")
+case_AB <- sum(imf$bloodtype == "AB")
+
+print(c(case_A,case_B,case_O,case_AB))
+```
+
+

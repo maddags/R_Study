@@ -1,0 +1,262 @@
+library(rvest)
+library(stringr)
+library(tidyverse)
+url <-"https://www.transfermarkt.com/transfers/saisontransfers/statistik/top/ajax/yw0/saison_id/2019/transferfenster/alle/land_id//ausrichtung//spielerposition_id//altersklasse//leihe//plus/0/galerie/0/page/1"
+web_page <- read_html(url)
+
+# 선수 이름
+player_name <- web_page %>% 
+  html_elements("#yw0 .spielprofil_tooltip") %>% 
+  html_text()
+
+player_name
+
+# 선수 나이
+player_age <- web_page %>% 
+  html_elements("#yw0 .zentriert:nth-child(3)") %>% 
+  html_text()
+
+player_age <- player_age[-1]
+player_age
+
+# 국적
+national <- web_page %>% 
+  html_elements(".zentriert:nth-child(5)")
+national <- national[-1]
+print(national[2], width = 1000)
+
+# 이중국적 제거
+count <- sapply(national,
+                \(x) length(html_children(x)))
+which(count > 1)
+one_national <- sapply(national,
+                       \(x) html_attr(html_children(x)[1],"alt"))
+one_national
+
+# 선수가치
+value <- web_page %>% 
+  html_elements(".rechts:nth-child(4)") %>% 
+  html_text()
+value <- value[-1]
+value
+
+# 소속클럽
+club <- web_page %>% 
+  html_elements(".hauptlink .vereinprofil_tooltip") %>% 
+  html_text()
+
+club
+
+# 소속리그
+league <- web_page %>% 
+  html_elements(".flaggenrahmen+ a") %>% 
+  html_text()
+
+
+# 포지션
+position <- web_page %>% 
+  html_elements("td:nth-child(2) tr+ tr td") %>% 
+  html_text()
+
+position
+
+base_url <- "https://www.transfermarkt.com/transfers/saisontransfers/statistik/top/ajax/yw0/saison_id/2005/transferfenster/alle/land_id//ausrichtung//spielerposition_id//altersklasse//leihe//plus/0/galerie/0/page/"
+url_list <- paste0(base_url,1:80)
+url_list
+
+player_names <- function(url_list){
+  Sys.sleep(1.2)
+  web_page <- read_html(url_list)
+  player_name <- web_page %>% 
+    html_elements("#yw0 .spielprofil_tooltip") %>% 
+    html_text()
+}
+
+player_positions <- function(url_list){
+  Sys.sleep(1.2)
+  web_page <- read_html(url_list)
+  player_position <- web_page %>% 
+    html_elements("td:nth-child(2) tr+ tr td") %>% 
+    html_text()
+}
+
+player_ages <- function(url_list){
+  Sys.sleep(1.2)
+  web_page <- read_html(url_list)
+  player_age <- web_page %>% 
+    html_elements("#yw0 .zentriert:nth-child(3)") %>% 
+    html_text()
+  player_age <- player_age[-1]
+}
+
+player_nationals <- function(url_list){
+  Sys.sleep(1.2)
+  web_page <- read_html(url_list)
+  national <- web_page %>% 
+    html_elements(".zentriert:nth-child(5)")
+  national <- national[-1]
+  one_national <- sapply(national,
+                         \(x) html_attr(html_children(x)[1],"alt"))
+}
+
+player_values <- function(url_list){
+  Sys.sleep(1.2)
+  web_page <- read_html(url_list)
+  value <- web_page %>% 
+    html_elements(".rechts:nth-child(4)") %>% 
+    html_text()
+  value <- value[-1]
+  
+}
+
+player_clubs <- function(url_list){
+  Sys.sleep(2)
+  web_page <- read_html(url_list)
+  club <- web_page %>% 
+    html_elements(".hauptlink .vereinprofil_tooltip") %>% 
+    html_text()
+}
+
+
+player_leagues <- function(url_list){
+  Sys.sleep(1.2)
+  web_page <- read_html(url_list)
+  league <- web_page %>% 
+    html_elements(".zentriert tr+ tr td") %>% 
+    html_text() %>% 
+    str_trim(side = "both")
+}
+
+
+{
+player_name_list <- lapply(url_list,player_names)
+player_name_unlist <- unlist(player_name_list)
+
+player_position_list <- lapply(url_list,player_positions)
+player_position_unlist <- unlist(player_position_list)
+
+player_age_list <- lapply(url_list,player_ages)
+player_age_unlist <- unlist(player_age_list)
+
+player_national_list <- lapply(url_list,player_nationals)
+player_national_unlist <- unlist(player_national_list)
+
+player_value_list <- lapply(url_list,player_values)
+player_value_unlist <- unlist(player_value_list)
+
+player_club_list <- lapply(url_list,player_clubs)
+player_club_unlist <- unlist(player_club_list)
+
+player_league_list <- lapply(url_list,player_leagues)
+player_league_unlist <- unlist(player_league_list)
+}
+
+
+player_df_2017 <- data.frame(name = player_name_unlist,
+                        year = rep(2017,2000),
+                        position = player_position_unlist,
+                        age = player_age_unlist,
+                        value = player_value_unlist,
+                        nationality = player_national_unlist,
+                        club = player_club_unlist,
+                        league = player_league_unlist
+                        )
+
+View(player_df_2017)
+write.csv(player_df_2017,"./player_data_2017.csv", row.names = F)
+
+
+
+{
+ages <- c()
+names <- c()
+positions <- c()
+leagues <- c()
+clubs <- c()
+values <-c()
+nationalites <- c()
+url_base <- "https://www.transfermarkt.com/transfers/saisontransfers/statistik/top/ajax/yw0/saison_id/2005/transferfenster/alle/land_id//ausrichtung//spielerposition_id//altersklasse//leihe//plus/0/galerie/0/page/"
+}
+for(i in c(1:80)){
+  read_url <- paste0(url_base,i)
+  Sys.sleep(1.2)
+  web_page <- read_html(read_url)
+  
+  player_name <- web_page %>%
+    html_elements("#yw0 .spielprofil_tooltip") %>%
+    html_text()
+
+  player_age <- web_page %>%
+    html_elements("#yw0 .zentriert:nth-child(3)") %>%
+    html_text()
+  player_age <- player_age[-1]
+
+  player_position <- web_page %>%
+    html_elements("td:nth-child(2) tr+ tr td") %>%
+    html_text()
+
+  national <- web_page %>%
+    html_elements(".zentriert:nth-child(5)")
+  national <- national[-1]
+  one_national <- sapply(national,
+                         \(x) html_attr(html_children(x)[1],"alt"))
+
+  value <- web_page %>%
+    html_elements(".rechts:nth-child(4)") %>%
+    html_text()
+  value <- value[-1]
+  
+  player_club <- web_page %>% 
+    html_elements(".zentriert .hauptlink") %>% 
+    html_text() %>% 
+    str_trim()
+  
+  player_league <- web_page %>%
+    html_elements(".zentriert tr+ tr td") %>%
+    html_text() %>%
+    str_trim(side = "both")
+
+  names <- c(names,player_name)
+  ages <- c(ages,player_age)
+  positions <- c(positions,player_position)
+  values <- c(values,value)
+  nationalities <- c(nationalites,one_national)
+  clubs <-c(clubs,player_club)
+  leagues <- c(leagues,player_league)
+}
+
+
+player_df_2005 <- data.frame(name = names,
+                         year = rep(2005,2000),
+                         position = positions,
+                         age = ages,
+                         value = values,
+                         nationality = nationalities,
+                         club = clubs,
+                         league = leagues
+)
+
+View(player_df_2005)
+write.csv(player_df_2005,"./player_data_2005.csv", row.names = F)
+player_df_2020$year <- as.numeric(player_df_2020$year)
+player_df_2020$age <- as.character(player_df_2020$age)
+player_df_2019$year <- as.numeric(player_df_2019$year)
+player_df_2019$age <- as.character(player_df_2019$age)
+
+str(player_df_2020)
+str(player_df_2018)
+str(player_df_2019)
+str(player_df_2015)
+str(player_df_2011)
+
+player_tm_data <- bind_rows(player_df_2020,player_df_2019,
+                            player_df_2018,player_df_2017,
+                            player_df_2016,player_df_2015,
+                            player_df_2014,player_df_2013,
+                            player_df_2012,player_df_2011,
+                            player_df_2010,player_df_2009,
+                            player_df_2008,player_df_2007,
+                            player_df_2006,player_df_2005)
+
+player_tm_data
+write.csv(player_tm_data,"./player_tm_data.csv")
