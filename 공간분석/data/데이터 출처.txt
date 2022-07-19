@@ -1,0 +1,13 @@
+와이파이위치데이터 - http://www.wififree.kr/open_api.do#n
+
+공간분석 공부 사이트 - https://kuduz.tistory.com/1042
+
+대한민국 최신 행정구역(SHP) :
+http://www.gisdeveloper.co.kr/?p=2332
+
+
+전국자전거보관소표준데이터
+https://www.data.go.kr/dataset/15017318/standard.do
+
+전국폐기물쓰레기처리장
+https://www.data.go.kr/dataset/3070174/fileData.do

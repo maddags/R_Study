@@ -1,0 +1,518 @@
+# 공간분석
+
+    공간분석을 위한 패키지
+
+    1. maps : 세계 지도 데이터베이스
+
+    2. mapdata : maps보다 해상도가 좋은 지도
+
+    3. mapproj : 위도와 경도 표시
+
+    4. ggmap : geogle 지도
+    
+
+패키지가 없다면, install.packages()을 이용해서 다운받고 library()까지해서 활성화를 시키자.    
+```{r echo = T}
+library(maps)
+library(mapdata)
+library(mapproj)
+library(ggmap)
+```
+
+map 패키지 내의 함수를 보면 일부는 다음과 같다.
+
+    maps 패키지 내 함수
+    
+      - map() : 지도를 시각화
+      
+      - map.cities() : 시각화된 지도 위에 도시이름 출력
+      
+      - map.axes() : 위도,경도 축을 그려줌
+
+
+#### 한국지도 그리기
+
+```{r echo = T}
+map(database = "world", region = c("South korea","North korea"))
+title("Korea")
+```
+
+ map() 
+
+ - database : 지도를 가지고 오는 곳
+
+ - region : 생성할 국가
+
+
+database에서 디폴트값은 world지만 worldHires를 사용할 경우 더 정교한 지도를 얻을 수 있다.
+
+```{r echo = T}
+map(database = "worldHires", region = c("South korea","North korea"))
+title("Korea")
+```
+
+두 지도를 보면, 섬이 많은 남해와 서해쪽에서 정교함이 차이나는 것을 알 수 있다.
+
+```{r echo = F}
+par(mfrow = c(1,2))
+map(database = "world", region = c("South korea","North korea"))
+title("World")
+map(database = "worldHires", region = c("South korea","North korea"))
+title("worldHires")
+```
+
+옵션 중에 col과 fill을 이용해서 지도에 색을 칠할 수 있다.
+
+```{r eho = T}
+par(mfrow = c(1,2))
+map(database = "worldHires", region = c("South korea"), col = "dark green", fill = F)
+map(database = "worldHires", region = c("South korea"), col = "dark green", fill = T)
+```
+
+col은 색깔을 지정해주는 옵션이고, fill은 색상을 전체로 칠할 것인지에 대한 여부를 T/F로 지정해준다.(T : 전체 색칠, F : 테두리만)
+
+### 구글 API 지정
+
+구글지도를 가져와서 시각화 하는 방법을 알아보자.
+
+먼저, 구글지도를 이용하기 전에 해야할 것이 있다. 자신의 구글API를 R에다가 등록을 해야한다.
+
+""ggmap"이란 패키지를 활성화(library)하자.(없을시 다운을 먼저 하자.)
+
+```{r echo = F}
+library(ggmap)
+```
+
+패키지를 활성화한 뒤에, https://cloud.google.com/maps-platform/ 들어가보자.
+
+위 사이트로 들어가서 구글API지도를 사용하기 위해 회원가입을 해야된다. 이때 형식에 맞춰 한 뒤에 자신의 API 등록키를 복사하자.(ctrl + c로)
+
+```{r echo = T}
+#register_google(key = "자신의 등록키 붙여넣기(ctrl + v))
+```
+
+위에 코드를 실행하면 자신의 등록키가 R에 등록이 된다.
+
+```{r echo = T}
+ggmap(get_map(location="sorth korea", zoom = 7, source = "google", maptype = "roadmap"))
+```
+
+등록이 제대로 되었으면 위의 코드를 실행했을 때, 지도가 불러와져야 된다.
+
+"ggmap"패키지에서 지도를 그리기 위해 바탕을 그려주는 함수는 ggmap()이다. ggplot2에서의 ggplot의 역할이라 생각하면 된다.
+
+지도를 그리기 위한 함수는 get_map()이다.
+
+    get_map사용법
+    get_map(location = c(lon= , lat = ),zoom = ,source ="" , maptype ="", color ="")
+    get_map의 source : google,stamen,osm
+    get_map의 soruce에 따른 maptype : google(terrian, satellite, roadmap, hybrid) 
+                                    stamen(watercolor, toner, terrian)
+                                  
+location은 위도와 경도를 적어주면 그 위치를 기준으로 지도를 그려준다.
+
+zoom은 말그래도 얼마나 축소해서 보여줄 것인지에 대한 옵션으로, 정수로 1~21까지 설정할 수 있다. 크기가 클수록 저 좁은 지역을 기준으로 보여준다.
+
+source는 지도를 가져올 때 어느 것을 가져오는 것인지에 대한 옵션이다. 보통 구글을 이용할 것이므로 구글에 대한 사용방법을 익히자.
+
+maptype은 지도를 어떤 지도를 가져올 것인지에 대해 설정을 해주는 것이다. 구글을 이용했을 때 위에처럼 4개의 지도를 가져올 수 있는데 보통은 roadmap을 쓸 것이다. 직접 4개를 입력해보도록하자.
+```{r echo = F}
+library(gridExtra)
+```
+```{r echo = T}
+
+terrain <- ggmap(get_map(location="sorth korea", zoom = 7, source = "google", maptype = "terrain")) +ggtitle("terrian")
+satellite <- ggmap(get_map(location="sorth korea", zoom = 7, source = "google", maptype = "satellite")) + ggtitle("satellite")
+roadmap <- ggmap(get_map(location="sorth korea", zoom = 7, source = "google", maptype = "roadmap")) + ggtitle("roadmap")
+hybrid <- ggmap(get_map(location="sorth korea", zoom = 7, source = "google", maptype = "hybrid"))+
+  ggtitle("hybrid")
+
+grid.arrange(terrain,satellite,roadmap,hybrid, ncol = 2)
+```
+
+지도를 보면 각각 어떻게 다른지를 볼 수 있다. 각각 데이터 상황에 맞춰 사용하면 된다.
+
+이제 지도를 활용해서 위치를 표시해보자.
+
+https://www.data.go.kr/dataset/15017318/standard.do
+
+위의 사이트로 들어가 전국자전거보관소표준데이터를 다운받아서 저장해보자.
+
+```{r echo = F}
+library(readxl)
+library(ggplot2)
+```
+
+```{r echo = T}
+bike <- read_excel("~/동아리/R문서(개인)/공간분석/전국자전거보관소표준데이터.xls")
+str(bike)
+
+bike$lat <- as.numeric(bike$lat)
+bike$lon <- as.numeric(bike$lon)
+bike$id <- as.character(bike$id)
+```
+
+일단 rawdata에서 자료형태를 보면 수치데이터가 chr로 저장된 것을 볼 수 있다. 이를 다시 num형으로 바꿔주다.
+
+```{r echo = T}
+map <- get_map((location = "sorth korea"), source = "google", maptype = "roadmap", zoom = 7, color = "bw")
+
+ggmap(map) +
+  geom_point(data = bike, aes(x = lon, y = lat, col = id)) +
+  ggtitle("전국자전거보관소") +
+  theme(plot.title = element_text(hjust = 0.5, size = 15))+
+  theme(legend.position = "none")
+```
+
+
+### 지도 세부적으로 쪼개기
+
+위의 지도를 보면 전체적인 지도로써 사용이 가능하다. 예를들어 대한민국 전체 지도를 볼때는 위의 지도를 쓰면 되지만 시군구로 구분이 필요한 데이터에는 사용이 힘들다. 경계가 명확하지 않아서 데이터의 위치가 대략적으로만 알 수 있다. 따라서 세부적으로 쪼개는 방법을 알아보자.
+
+먼저, "raster"라는 패키지가 있다. 이 패키지 안에는 전 세계 행정구역 데이터베이스인 GADM(Database of Global Adiministrative Areas)를 불러올 수 있는 getData()함수가 들어있다. 이 함수가 필요한 이유는 자치구의 좌표를 알려주기 때문이다.
+
+```{r echo = T}
+library(raster)
+```
+
+각자 raster를 활성화하고 다음의 코드를 입력해보자.
+
+```{r echo = T}
+korea <- getData("GADM", country = "kor", level = 2)
+korea_map <- ggplot(data = korea) + geom_polygon(aes(x = long, y =lat, group = group),fill = "white", color = "black" )
+korea_map
+```
+
+위의 지도를 보면 대한민국을 시군구로 쪼개서 표현하였다. 다만, 문제가 있다면 이 데이터가 예전 행정구역의 시군구로 나눈거여서 데이터의 업데이트가 필요하다. 다른나라를 그릴때는 이 방법을 쓰고, 우리나라의 지도를 시군구로 나눌때는 최신 업데이트된 행정구역 데이터로 해야한다.
+
+
+대한민국 최신 행정구역(SHP) : http://www.gisdeveloper.co.kr/?p=2332
+
+위 사이트에 들어가서 2019년 5월 데이터를 다운받아준다(이 글을 쓸때의 최신 데이터가 2019년5월이다.)
+
+```{r echo = T}
+korea
+```
+
+위의 데이터는 GIS에서 세이프파일(shapefile)이라고 부른다.
+
+shapefile() 함수를 쓰면 위 사이트에서 다운받은 shp파일을 불어들일 수 있다.
+
+```{r echo = T}
+new_korea <- shapefile("~/동아리/R문서(개인)/공간분석/SIG_201905/TL_SCCO_SIG.shp")
+new_korea <- spTransform(new_korea,CRS("+proj=longlat")) #띄어쓰기 하지말것
+new_korea <- fortify(new_korea)
+new_korea_map<- ggplot(new_korea) + geom_polygon(aes(x = long, y = lat, group= group), fill = "white", color = "black")
+new_korea_map
+```
+
+spTransform함수는 shp파일에 좌표계를 설정해준다. 옵션에 의해 위경도로 표기해준다.
+
+fortify함수는 shp파일을 matrix형태로 바꿔주는 함수이다.
+
+혹시 error가 뜨는 경우가 가끔 있다.(fortify 오류나 Input geom 1 is vaild 오류)
+
+오류가 뜰시, .libPaths()를 실행하여 R패키지가 설치된 경로를 확인한 뒤, 그곳으로 가서 rgeos,maptools,rgdal를 지우고 앞에 순서대로 패키지를 다시 설치한뒤, 다시 활성화(library)를 해준다.
+
+(정확한 정보는 https://coding-law.tistory.com/30 참조)
+
+두 지도를 비교해보면,
+
+```{r echo = F}
+grid.arrange(korea_map,new_korea_map,ncol = 2)
+```
+
+오른쪽 지도에서 수도권지역과 남해지역이 조금 더 자세하게 그려진 것을 볼 수 있다.
+
+이제 위에서 그린 지도를 가지고 데이터를 활용해서 그려보도록 하자.
+
+다음 사이트로 들어가서 2016년 전국폐기물쓰레기처리장 데이터 중  
+
+"전국_시도현황_3.폐기물 처리주제별 처리현황_3.다.사업장배출시설폐기물 _cng.csv"를 다운받아서 각자 R로 가져오자.
+
+(https://www.data.go.kr/dataset/3070174/fileData.do)
+
+```{r echo = F}
+trash <- read.csv("~/동아리/R문서(개인)/공간분석/trash.csv")
+trash$id <- c(0:16)
+```
+
+데이터를 살펴보면, 여러 조건에서의 배출량을 나오는데 새로운 열에다가 총배출량(모든 항목을 행으로 더한다.), 재활용률(각 항목중 재활용일 / 총배출량 x 100)을 추가하고, 시도별로 데이터를 비교하기 위해 id라는 항목으로 위에서부터 0:16까지 추가하자.
+
+```{r eho = F}
+head(trash,17)
+```
+
+위처럼 데이터가 잘 들어가있는지 비교해보자.(새로 추가한 항목의 이름은 달라도 상관없다.)
+
+하지만, 여기서 문제가 1개 발생한다. new_korea과 trash 항목중 id를 비교해보면, 종류의 총개수가 다르다는 것을 알 수 있다. 그 이유는 new_korea은 시군구로 나누었기 때문에 더 종류가 많아질 수 밖에 없다.
+
+따라서 정확하게 그리기 위해서는 id를 17개로 바꿔주어야한다.
+
+(위에서 도시별 id코드를 지역별로 바꾸는 것은 필자가 구해놨으므로 그대로 코드를 참조하자.)
+
+...................................................................................................................................................................................................
+
+    문제 1. new_korea의 도시별 id를 지역별 id로 바꾸어라.
+      - new_korea의 도시별 id는 다음과 같다.
+        ( 서울 : 0 ~ 24, 부산 : 25 ~ 40, 대구 : 41 ~ 48,                         )
+        ( 인천 : 49 ~ 58, 광주 : 59 ~ 63, 대전 64 ~ 68,                          )
+        ( 울산 : 69 ~ 73, 세종 : 74, 경기도 : 75 ~ 113, 강원도 : 114 ~ 134,      )
+        ( 충청북도 : 135 ~ 143, 충청남도 : 144 ~ 164, 전북 : 165 ~ 179,          )
+        ( 전남 : 180 ~ 201, 경북 : 202 ~ 225, 경남 : 226 ~ 247, 제주 : 248 ~ 249 )
+        
+      - id는 trash의 id를 기준으로 new_korea을 바꿀 것.
+      
+      - id를 새로 저장한 데이터명과 기존 명을 다르게 할 것.
+```{r echo = F}
+#서울
+seoul <- new_korea[new_korea$id == 0,]
+seoul <- rbind(seoul,new_korea[new_korea$id == 1,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 2,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 3,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 4,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 5,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 6,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 7,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 8,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 9,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 10,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 11,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 12,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 13,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 14,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 15,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 16,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 17,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 18,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 19,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 20,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 21,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 22,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 23,])
+seoul <- rbind(seoul,new_korea[new_korea$id == 24,])
+seoul$id <- 0
+
+
+#부산
+busan <- new_korea[new_korea$id > 24 & new_korea$id < 41 ,]
+busan <- busan[-c(1:1332),]
+busan <- busan[c(1:27518),]
+busan$id <- 1
+
+#대구
+daegu <- new_korea[new_korea$id > 40 & new_korea$id < 49 ,]
+daegu$id <- 2
+
+#인천
+incheon <- new_korea[new_korea$id > 48 & new_korea$id < 59 ,]
+incheon <- incheon[-c(1:1091),]
+incheon$id <- 3
+
+#광주
+gwongju <- new_korea[new_korea$id > 58 & new_korea$id < 64 ,]
+gwongju <- gwongju[-c(1:1206),]
+gwongju$id <- 4
+
+#대전
+daejeon <- new_korea[new_korea$id > 63 & new_korea$id < 69 ,]
+daejeon$id <- 5
+
+#울산
+ulsan <- new_korea[new_korea$id > 68 & new_korea$id < 74 ,]
+ulsan <- ulsan[-c(1:2078),]
+ulsan$id <- 6
+
+#세종
+seongjong <- new_korea[new_korea$id == 74,]
+seongjong$id <- 7
+gwangyugsi <- rbind(busan,daegu,incheon,gwongju,daejeon,ulsan,seongjong)
+
+#경기도
+gyunggi <- new_korea[new_korea$id >= 75,]
+gyunggi <- gyunggi[-c(1:2882),]
+gyunggi_2 <- new_korea[new_korea$id >= 100,]
+gyunggi_2 <- gyunggi_2[-c(1:218969),]
+gyunggi_2 <- gyunggi_2[gyunggi_2$id < 114,]
+
+gyunggi <- rbind(gyunggi,gyunggi_2)
+gyunggi$id <- 8
+
+
+#강원도
+gangwon <- new_korea[new_korea$id > 113,]
+gangwon <- gangwon[gangwon$id < 135,]
+gangwon <- gangwon[-c(1:2847),]
+gangwon$id <- 9
+
+#충북
+chungbuk <- new_korea[new_korea$id > 134,]
+chungbuk <- chungbuk[chungbuk$id < 144,]
+chungbuk <- chungbuk[-c(1:2047),]
+chungbuk$id <- 10
+
+#충남
+chungnam <- new_korea[new_korea$id > 143,]
+chungnam <- chungnam[chungnam$id < 165,]
+chungnam <- chungnam[-c(1:5280),]
+chungnam$id <- 11
+
+chungcheong <- rbind(chungbuk,chungnam)
+
+
+#전북
+junbuk <- new_korea[new_korea$id >164,]
+junbuk <- junbuk[junbuk$id < 180,]
+junbuk <- junbuk[-c(1:2772),]
+junbuk$id <- 12
+
+
+#전남
+junnam <- new_korea[new_korea$id >=180,]
+junnam <- junnam[-c(1:204468),]
+junnam <- junnam[junnam$id < 202,]
+junnam$id <- 13
+
+junla <- rbind(junbuk,junnam)
+
+
+#경북
+kyungbuk <- new_korea[new_korea$id >=202,]
+kyungbuk <- kyungbuk[-c(1:200767),]
+kyungbuk <- kyungbuk[kyungbuk$id < 226,]
+kyungbuk$id <- 14
+
+#경남
+kyungnam <- new_korea[new_korea$id>=226,]
+kyungnam <- kyungnam[-c(1:197619),]
+kyungnam <- kyungnam[kyungnam$id < 248,]
+kyungnam$id <- 15
+
+kyungsang <- rbind(kyungbuk,kyungnam)
+
+#제주
+jeju <- new_korea[new_korea$id == 248,]
+jeju <- rbind(jeju,new_korea[new_korea$id == 249,])
+jeju$id <- 16
+
+
+korea_part_sum <- rbind(seoul,gwangyugsi,gyunggi,gangwon,chungcheong,junla,kyungsang,jeju)
+
+```
+
+```{r echo = T}
+test <- function(x){
+  random_number <- sample(c(1:1338420),size = 10, replace = F)
+  x[random_number,]
+}
+
+test(korea_part_sum)
+```
+
+...................................................................................................................................................................................................
+
+위의 문제1를 제대로 하였으면 두개의 데이터를 합쳐보도록 하자.
+
+merge()함수는 두개의 데이터를 어느 공통된 데이터를 기준으로 자료를 합쳐준다.
+
+merge(data1,data2,by = "")의 형태로 사용하면 된다.
+
+data1,data2는 합칠 데이터가 저장된 변수를 입력해준다.
+
+by = ""는 합칠 2개의 데이터에서 공통된 값을 기준을 지정해준다.
+
+trash, korea_part_sum(필자가 위에서 만든 대한민국 시군구 데이터 변수명)에서는 공통된 변수를 id로 할 것이다.
+
+data1,data2에서 위처럼 코드를 짤 경우, 공통된 데이터가 맨 첫번째 행 그리고 먼저 쓴 데이터가 나온다.
+
+```{r echo = T}
+fusion_data <- merge(korea_part_sum,trash,by="id")
+head(fusion_data, 5)
+```
+
+위에 결과값을 보면, id를 기준으로 두 데이터가 합쳐진 것을 볼 수 있다.
+
+합친 데이터를 가지고 그려보도록 하자.
+
+```{r echo = T}
+korea_ggplot<- ggplot(data= fusion_data) +
+  geom_polygon(aes(x = long , y = lat, group = group, fill = recycle_rate)) +
+  ggtitle("전국폐기물처리 재활용률") +
+  theme(plot.title = element_text(hjust = 0.5, size = 14)) +
+  labs(fill = "백분율(%)") +
+  theme(legend.title = element_text(hjust = 0.5, size = 8)) +
+  scale_fill_gradient(high = "green", low = "black")
+
+korea_ggplot
+```
+
+위는 ggplot2를 가지고 그려본 것이고, 지도를 활용해서 그리면 다음과 같다.
+
+```{r echo = T}
+korea_ggmap<-ggmap(get_map(location = "sorth korea", zoom = 7, source = "google", maptype = "roadmap",color = "bw")) +
+  geom_polygon(data = fusion_data, aes(x = long , y = lat, group = group, fill = recycle_rate), alpha = 0.6) +
+  ggtitle("전국폐기물처리 재활용률") +
+  theme(plot.title = element_text(hjust = 0.5, size = 14)) +
+  labs(fill = "백분율(%)") +
+  theme(legend.title = element_text(hjust = 0.5, size = 8)) +
+  scale_fill_gradient(high = "green", low = "black")
+
+korea_ggmap
+```
+
+데이터와 지도랑 정확하게 맞지 않는 이유는 zoom(배율)의 문제일 수도 있고,지도와 데이터의 위/경도의 데이터 자체가 조금씩 다르기 때문일 가능성이 높다.
+
+2개의 데이터 중 어느 것이 더 나은지 각자 판단해서 사용하면 된다.
+
+...................................................................................................................................................................................................
+
+    문제2. 서울의 각 자치구의 WIFI 설치된 곳을 구하여 표현하기.
+    
+    - 조건 1 : wifi데이터 : http://www.wififree.kr/open_api.do#n
+    
+    - 조건 2 : 밑의 지도처럼 서울외곽지역의 좌표는 최대한 지울 것
+    
+    - 범례에 NA 뜰 경우, 오류인 것 같으니 상관 없음.
+    
+    - ggplot2, ggmap를 이용한것 2개 그리기
+               
+```{r echo = F}
+wifi <- read_excel("C:/Users/madda/Documents/동아리/R문서(개인)/공간분석/wifi.xlsx")
+wifi_ver2 <- wifi[wifi$lon > 126.76 & wifi$lon < 127.18 & wifi$lat > 37.43 & wifi$lat < 37.7,]
+wifi_ver2 <- wifi_ver2[!(wifi_ver2$lon < 126.9 & wifi_ver2$lat > 37.59),]
+wifi_ver2 <- wifi_ver2[!(wifi_ver2$lon <126.82 & wifi_ver2$lat < 37.57),]
+wifi_ver2 <- wifi_ver2[!(wifi_ver2$lon <121.5 & wifi_ver2$lat < 37.575),]
+wifi_ver2 <- wifi_ver2[!(wifi_ver2$lon > 127.12 & wifi_ver2$lat > 37.57),]
+wifi_ver2 <- wifi_ver2[!(wifi_ver2$lon > 127.12 & wifi_ver2$lat > 37.57),]
+wifi_ver2 <- wifi_ver2[!(wifi_ver2$lon > 127.12 & wifi_ver2$lat < 37.47),]
+wifi_ver2 <- wifi_ver2[!(wifi_ver2$lon > 126.95 & wifi_ver2$lat < 37.455),]
+wifi_ver2 <- wifi_ver2[!(wifi_ver2$lon < 126.89 & wifi_ver2$lat < 37.455),]
+
+seoul_ggplot <- ggplot() +
+  geom_polygon(data = seoul, aes(x = long, y =lat, group= group), fill = "white", color = "black") +
+  geom_point(data = wifi_ver2, aes(x = lon, y = lat, color = company)) +
+  ggtitle("서울 통신사 wifi 단말기 위치") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12)) +
+  scale_color_discrete(name = "통신사") +
+  theme(legend.title = element_text(hjust = 0.5, size = 10)) +
+  labs(x = "경도", y ="위도")
+  
+seoul_ggplot
+
+```
+
+```{r echo = F}
+
+seoul_map <- get_map(location = "seoul", zoom = 11, source = "google", maptype = "roadmap", color = "bw")
+
+seoul_ggmap<- ggmap(seoul_map) +
+  geom_point(data = wifi_ver2, aes(x = lon, y = lat, color = company), alpha = 0.6) +
+  ggtitle("서울 통신사 wifi 단말기 위치")+
+  theme(plot.title = element_text(hjust = 0.5, size = 12)) +
+  scale_color_discrete(name = "통신사") +
+  theme(legend.title = element_text(hjust = 0.5, size = 10)) +
+  labs(x = "경도", y ="위도")
+  
+
+seoul_ggmap
+```
